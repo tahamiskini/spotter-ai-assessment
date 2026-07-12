@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interstate Truck HOS & Assessment Cheat Sheet</title>
+<style>
+  @page { margin: 0.6in; size: letter; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 10pt;
+    line-height: 1.45;
+    color: #1a1a2e;
+    max-width: 8.5in;
+    margin: 0 auto;
+    padding: 0.4in;
+    background: #fff;
+  }
+  h1 { font-size: 18pt; margin-bottom: 2px; color: #0d1b2a; }
+  h2 {
+    font-size: 13pt; margin: 18px 0 4px 0; padding-bottom: 3px;
+    border-bottom: 2px solid #1b3a5c; color: #0d1b2a;
+  }
+  h3 { font-size: 11pt; margin: 12px 0 3px 0; color: #1b3a5c; }
+  h4 { font-size: 10pt; margin: 8px 0 2px 0; color: #2d4a6e; }
+  p { margin: 0 0 6px 0; }
+  ul, ol { margin: 0 0 6px 0; padding-left: 20px; }
+  li { margin-bottom: 1px; }
+  .subtitle { color: #555; font-size: 9pt; margin-bottom: 12px; }
+  .meta { font-size: 8.5pt; color: #666; margin-bottom: 16px; }
+  .toc { columns: 2; column-gap: 24px; margin: 10px 0 16px 0; padding: 10px 14px; background: #f4f6f9; border-radius: 5px; }
+  .toc a { display: block; color: #1b3a5c; text-decoration: none; font-size: 9pt; line-height: 1.7; }
+  .toc a:hover { text-decoration: underline; }
+  .card {
+    background: #f8f9fc; border-left: 4px solid #1b3a5c; border-radius: 4px;
+    padding: 8px 12px; margin: 6px 0;
+  }
+  .card.warn { border-left-color: #b8860b; background: #fefce8; }
+  .card.green { border-left-color: #2e7d32; background: #f0faf0; }
+  .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 6px 0; }
+  .rule-box { border: 1px solid #d0d5dd; border-radius: 5px; padding: 8px 10px; background: #fff; }
+  .rule-box .label { font-weight: 600; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.5px; color: #555; }
+  .rule-box .value { font-size: 11pt; font-weight: 700; color: #0d1b2a; }
+  .rule-box .desc { font-size: 8.5pt; color: #555; }
+  table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 9pt; }
+  th, td { border: 1px solid #d0d5dd; padding: 4px 8px; text-align: left; }
+  th { background: #e8edf4; font-weight: 600; }
+  .status-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
+  .status-tag { padding: 3px 10px; border-radius: 4px; font-size: 8.5pt; font-weight: 600; color: #fff; }
+  .status-tag.off { background: #6b7280; }
+  .status-tag.sb { background: #4f46e5; }
+  .status-tag.dr { background: #d97706; }
+  .status-tag.on { background: #059669; }
+  .checklist li { list-style: none; position: relative; padding-left: 18px; }
+  .checklist li::before { content: "\2610"; position: absolute; left: 0; font-size: 11pt; }
+  hr { border: none; border-top: 1px dashed #ccc; margin: 14px 0; }
+  .two-col { display: flex; gap: 16px; }
+  .two-col > * { flex: 1; }
+  @media print {
+    body { padding: 0; max-width: 100%; }
+    .toc a { color: #1b3a5c; }
+    .card { break-inside: avoid; }
+    h2, h3 { break-after: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Interstate Truck HOS &amp; Assessment Cheat Sheet</h1>
+<p class="subtitle">Hours of Service rules from 49 CFR Part 395 + full-stack Django/React assessment app plan</p>
+<p class="meta">Last updated: July 2026 &nbsp;|&nbsp; Source: FMCSA Interstate Truck Drivers Guide &nbsp;|&nbsp; Print this page to create PDF</p>
+
+<!-- ===== TABLE OF CONTENTS ===== -->
+<div class="toc">
+  <a href="#s0">§0  Purpose</a>
+  <a href="#s1">§1  Core HOS Concepts</a>
+  <a href="#s2">§2  Duty Status Types</a>
+  <a href="#s3">§3  Daily Limits (Workday Rules)</a>
+  <a href="#s4">§4  Weekly / Cycle Limits (70-hr / 8-day)</a>
+  <a href="#s5">§5  Sleeper Berth Provisions</a>
+  <a href="#s6">§6  Exceptions Overview</a>
+  <a href="#s7">§7  Driver's Daily Log</a>
+  <a href="#s8">§8  Assessment App Intentions</a>
+  <a href="#s9">§9  Algorithm &amp; Implementation Plan</a>
+  <a href="#s10">§10 Delivery Checklist</a>
+</div>
+
+<!-- ===== §0 ===== -->
+<h2 id="s0">§0  Purpose</h2>
+<div class="card">
+<p><strong>For the developer.</strong> One place to learn:</p>
+<ul>
+  <li>HOS rules from the FMCSA guide — accurate enough to pass technical screening.</li>
+  <li>Full intentions of the Django + React assessment app (not minimum scope).</li>
+</ul>
+<p>Print this page (or save as PDF from browser) to use as a desk reference.</p>
+</div>
+
+<!-- ===== §1 ===== -->
+<h2 id="s1">§1  Core HOS Concepts</h2>
+
+<h3>Regulator &amp; Scope</h3>
+<ul>
+  <li><strong>FMCSA</strong> (Federal Motor Carrier Safety Administration) — part of U.S. DOT.</li>
+  <li>Rules apply to <strong>property-carrying CMVs</strong> in <strong>interstate commerce</strong> under <strong>49 CFR Part 395</strong>.</li>
+  <li>Assessment assumption: property-carrying driver, <strong>70-hr / 8-day schedule</strong>, <em>no</em> adverse driving conditions.</li>
+</ul>
+
+<h3>Commercial Motor Vehicle (CMV)</h3>
+<p>A CMV is a truck/truck-tractor with trailer used in interstate commerce that meets any of:</p>
+<ul>
+  <li>Weighs (incl. load) <strong>≥ 10,001 lbs</strong></li>
+  <li><strong>GVWR or GCWR ≥ 10,001 lbs</strong></li>
+  <li>Transports <strong>placarded hazardous materials</strong></li>
+</ul>
+
+<!-- ===== §2 ===== -->
+<h2 id="s2">§2  Duty Status Types (Log Grid Rows)</h2>
+
+<div class="status-row">
+  <span class="status-tag off">Off Duty</span>
+  <span class="status-tag sb">Sleeper Berth</span>
+  <span class="status-tag dr">Driving</span>
+  <span class="status-tag on">On Duty Not Driving</span>
+</div>
+
+<table>
+  <tr><th>Status</th><th>Code</th><th>Definition</th><th>Counts toward…</th></tr>
+  <tr><td>Off Duty</td><td>OFF</td><td>Fully relieved from work; free to pursue personal activities; may leave vehicle</td><td>off-duty rest periods</td></tr>
+  <tr><td>Sleeper Berth</td><td>SB</td><td>Resting in truck's sleeper compartment (meets regulatory definition)</td><td>off-duty rest; split-sleeper periods</td></tr>
+  <tr><td>Driving</td><td>D</td><td>At controls of CMV on public roads</td><td>11-hr limit, 14-hr window, 30-min break clock</td></tr>
+  <tr><td>On Duty Not Driving</td><td>ON</td><td>Inspections, fueling, load/unload, paperwork, yard moves, waiting, drug tests, other paid work</td><td>14-hr window, 70-hr cycle</td></tr>
+</table>
+
+<p><strong>Key formulas:</strong></p>
+<ul>
+  <li><strong>On-duty time</strong> = Driving + On Duty Not Driving</li>
+  <li><strong>Off-duty time</strong> = Off Duty + Sleeper Berth</li>
+  <li><strong>70-hr / 8-day limit</strong> applies to <em>total on-duty time</em> (not just driving)</li>
+</ul>
+
+<!-- ===== §3 ===== -->
+<h2 id="s3">§3  Daily Limits (Workday Rules)</h2>
+
+<div class="rule-grid">
+  <div class="rule-box">
+    <div class="label">Rest before workday</div>
+    <div class="value">≥ 10 consecutive hours</div>
+    <div class="desc">Off Duty and/or Sleeper Berth — no on-duty or driving</div>
+  </div>
+  <div class="rule-box">
+    <div class="label">14-Hour Driving Window</div>
+    <div class="value">14 consecutive hours</div>
+    <div class="desc">Starts when driver goes on-duty after 10-hr break. May drive ≤ 11 hrs within it. After 14<sup>th</sup> hour: may not drive again until new rest.</div>
+  </div>
+  <div class="rule-box">
+    <div class="label">11-Hour Driving Limit</div>
+    <div class="value">≤ 11 hours driving</div>
+    <div class="desc">Max driving time within the 14-hr window. Once reached, no more driving until next qualifying rest.</div>
+  </div>
+  <div class="rule-box">
+    <div class="label">30-Minute Break</div>
+    <div class="value">≥ 30 consecutive min</div>
+    <div class="desc">Required after 8 cumulative hours of Driving (since last break). Can be OFF, SB, or ON — must be 30 continuous min without Driving. Does <em>not</em> extend 14-hr window or 11-hr max.</div>
+  </div>
+</div>
+
+<div class="card warn">
+<strong>Common trap:</strong> The 30-min break must be <em>taken</em> before the 8<sup>th</sup> driving hour is reached. Once 8 cumulative driving hours elapse without a break, the driver has violated the rule.
+</div>
+
+<!-- ===== §4 ===== -->
+<h2 id="s4">§4  Weekly / Cycle Limits (70-Hour / 8-Day Rule)</h2>
+
+<h3>4.1 Rolling 8-Day Window</h3>
+<ul>
+  <li>Sum on-duty hours for current day + previous 7 days (8 total).</li>
+  <li><strong>If total ≥ 70 → driver may NOT drive</strong> (may still do on-duty not driving work).</li>
+  <li>Drop the day that is 9 days ago as each new day starts.</li>
+  <li>Assessment input: <strong>Current Cycle Used (Hrs)</strong> — pre-filled on-duty hours already consumed.</li>
+</ul>
+
+<h3>4.2 34-Hour Restart</h3>
+<ul>
+  <li>≥ 34 consecutive hours off-duty (OFF + SB) → resets the 70-hr accumulation to zero.</li>
+  <li>Optional but important for trip planning when cycle is near 70.</li>
+  <li>A new 8-day cycle begins after restart.</li>
+</ul>
+
+<div class="card green">
+<strong>Implementation tip:</strong> Maintain a rolling array of last 8 days' on-duty totals. When the sum approaches 70, schedule a 34-hr restart period.
+</div>
+
+<!-- ===== §5 ===== -->
+<h2 id="s5">§5  Sleeper Berth Provisions</h2>
+
+<h3>5.1 Simple Case (Initial Implementation)</h3>
+<p>≥ 10 consecutive hours in Sleeper Berth (or combined off-duty) → fully resets 11-hr driving limit and 14-hr window.</p>
+
+<h3>5.2 Split Sleeper (Future / Advanced)</h3>
+<ul>
+  <li>Two qualifying periods: e.g., 7 hrs SB + 3 hrs OFF (total ≥ 10 hrs).</li>
+  <li>Paired periods may <em>not</em> count against the 14-hr window in certain calculations.</li>
+  <li>The FMCSA guide contains detailed recalculation examples.</li>
+</ul>
+
+<div class="card warn">
+<strong>Assessment scope:</strong> Model only "10 consecutive hours off" for initial implementation. Split sleeper can be an extension later.
+</div>
+
+<!-- ===== §6 ===== -->
+<h2 id="s6">§6  Exceptions Overview (Domain Context)</h2>
+
+<table>
+  <tr><th>Exception</th><th>What It Allows</th><th>Implement?</th></tr>
+  <tr><td>Adverse Driving Conditions</td><td>Extend driving by ≤ 2 hrs (up to 13 total); extends 14-hr window ≤ 2 hrs. Does <em>not</em> override 70-hr limit. Must annotate log.</td><td>✗</td></tr>
+  <tr><td>Short-Haul (CDL, 150 air-mile)</td><td>Operates within 150 air-miles of base, returns daily, works ≤ 14 hrs. May use simplified records; may be exempt from 30-min break.</td><td>✗</td></tr>
+  <tr><td>Non-CDL &amp; 16-hr Short-Haul</td><td>Extended workday or simplified records for some non-CDL CMV drivers.</td><td>✗</td></tr>
+</table>
+
+<!-- ===== §7 ===== -->
+<h2 id="s7">§7  Driver's Daily Log (Record of Duty Status)</h2>
+
+<h3>7.1 Grid Structure</h3>
+<ul>
+  <li><strong>24-hr horizontal axis</strong> from midnight (00:00) to midnight (24:00).</li>
+  <li><strong>4 horizontal rows:</strong> Off Duty, Sleeper Berth, Driving, On Duty Not Driving.</li>
+  <li>Continuous line segments in the appropriate row + vertical lines at each status change.</li>
+  <li>Total time across all rows = <strong>24 hours</strong>.</li>
+</ul>
+
+<h3>7.2 Required Information per Log</h3>
+<div class="two-col">
+<ul>
+  <li>Date (month, day, year)</li>
+  <li>Total miles driven</li>
+  <li>Truck/tractor &amp; trailer numbers</li>
+  <li>Carrier name &amp; main office address</li>
+  <li>Driver's full signature</li>
+</ul>
+<ul>
+  <li>Co-driver name (if any)</li>
+  <li>Terminal time zone &amp; 24-hr starting time</li>
+  <li>Remarks with city/state for each status change</li>
+  <li>Shipping document numbers or shipper/commodity</li>
+  <li>Special notes (e.g., adverse conditions)</li>
+</ul>
+</div>
+
+<p><strong>In the app:</strong> Generate one or more daily logs per trip, displayed visually in the frontend as 24-hr grids.</p>
+
+<!-- ===== §8 ===== -->
+<h2 id="s8">§8  Assessment App Intentions (Full Scope)</h2>
+
+<h3>8.1 Stack &amp; Deliverables</h3>
+<table>
+  <tr><th>Component</th><th>Tech</th><th>Delivery</th></tr>
+  <tr><td>Backend</td><td>Django (Python)</td><td>Live hosted (e.g., Railway, Render, Fly.io)</td></tr>
+  <tr><td>Frontend</td><td>React (JS/TS)</td><td>Live hosted (e.g., Vercel, Netlify)</td></tr>
+  <tr><td>Demo</td><td>Loom video (3–5 min)</td><td>Show end-to-end usage + explain HOS enforcement</td></tr>
+  <tr><td>Source</td><td>GitHub</td><td>Public repo with clear README</td></tr>
+</table>
+
+<h3>8.2 App Inputs</h3>
+<div class="card">
+<ol>
+  <li><strong>Current Location</strong> — starting point</li>
+  <li><strong>Pickup Location</strong> — loading point (≥ 1 hr on-duty not driving)</li>
+  <li><strong>Dropoff Location</strong> — unloading point (≥ 1 hr on-duty not driving)</li>
+  <li><strong>Current Cycle Used (Hrs)</strong> — on-duty hours already consumed in the current 8-day 70-hr cycle</li>
+  <li><em>(Optional)</em> Start date/time</li>
+</ol>
+</div>
+
+<h3>8.3 Backend (Django) Intent</h3>
+<table>
+  <tr><th>Feature</th><th>Details</th></tr>
+  <tr><td>Route &amp; Travel Time</td><td>Use map/routing API (ORS, OSRM, Google Maps) or own distance estimate to compute driving time: current → pickup, pickup → dropoff</td></tr>
+  <tr><td>HOS-Compliant Schedule</td><td>Plan across days: no day &gt; 11 hrs driving; no shift &gt; 14-hr window; 30-min break after 8 hrs driving; 70-hr rolling limit with optional 34-hr restart</td></tr>
+  <tr><td>Log Data Generation</td><td>Per calendar day: status segments with start/end timestamps, locations, total hrs per status, daily miles driven</td></tr>
+  <tr><td>API Endpoints</td><td>POST /api/plan — submit inputs → receive schedule, log data, route/stops</td></tr>
+</table>
+
+<h3>8.4 Frontend (React) Intent</h3>
+<table>
+  <tr><th>Feature</th><th>Details</th></tr>
+  <tr><td>Input Form</td><td>Clean form for all inputs + optional start date/time</td></tr>
+  <tr><td>Map Visualization</td><td>Free map API (Leaflet/MapLibre) showing route + key stops (pickup, dropoff, fueling, breaks, rest)</td></tr>
+  <tr><td>Daily Log Sheets</td><td>For each day: draw 24-hr log grid, plot duty status timeline, show remarks &amp; totals per status</td></tr>
+  <tr><td>Trip Summary</td><td>Total distance, total driving hrs, number of days, breaks/rests, on-duty hrs added, 34-hr restart used</td></tr>
+  <tr><td>UI/UX</td><td>Professional, readable. Good design compensates for minor inaccuracies</td></tr>
+</table>
+
+<!-- ===== §9 ===== -->
+<h2 id="s9">§9  Algorithm &amp; Implementation Plan</h2>
+
+<h3>9.1 Scheduling Algorithm (Pseudo-code)</h3>
+<div class="card">
+<pre style="font-size:8.5pt; line-height:1.5; background:#f4f6f9; padding:8px; border-radius:4px; overflow-x:auto;">
+FUNCTION plan_trip(current_loc, pickup, dropoff, cycle_used):
+  drive1 = distance(current_loc → pickup) / avg_speed   # hours driving
+  drive2 = distance(pickup → dropoff) / avg_speed
+
+  days = []
+  day = new_day(cycle_used)
+  on_duty_today = 0; driving_today = 0; window_start = None
+
+  # --- Leg 1: Current → Pickup ---
+  schedule_leg(drive1, day, loading=0)
+  # Add 1 hr ON for pickup loading
+  schedule_task(1, "on_duty", day)
+
+  # --- Leg 2: Pickup → Dropoff ---
+  schedule_leg(drive2, day, loading=1)
+
+  RETURN days
+
+FUNCTION schedule_leg(drive_hours, day, loading):
+  DRIVING_PER_DAY = 11
+  WINDOW = 14
+  BREAK_AFTER = 8
+
+  while drive_hours > 0:
+    # Start new day if needed
+    if day.full() or day.cycle_full():
+      day = new_day()
+
+    # Start 14-hr window
+    if day.window_active is False:
+      day.start_window()
+
+    # 30-min break check
+    if day.driving_since_break >= BREAK_AFTER:
+      schedule_break(0.5, day)
+
+    # Drive up to remaining allowed hours
+    allowed_drive = min(drive_hours,
+                        DRIVING_PER_DAY - day.driving_today,
+                        WINDOW - day.on_duty_since_window_start)
+    schedule_drive(allowed_drive, day)
+    drive_hours -= allowed_drive
+
+    # Add loading/unloading ON time
+    if loading:
+      schedule_task(1, "on_duty", day)
+
+  return day
+</pre>
+</div>
+
+<h3>9.2 Route &amp; Location Strategy</h3>
+<ul>
+  <li><strong>Recommended:</strong> Use <a href="https://openrouteservice.org/">OpenRouteService</a> (free, no API key for limited use) or OSRM demo server.</li>
+  <li>Fallback: Great-circle distance × 1.3 (road factor) ÷ avg_speed (55 mph).</li>
+  <li>Annotate route points → assign locations to each log status change.</li>
+</ul>
+
+<h3>9.3 Django Project Structure</h3>
+<pre style="font-size:8pt; background:#f4f6f9; padding:8px; border-radius:4px;">
+hos_planner/
+├── config/              # settings, urls, wsgi
+├── api/                 # DRF views, serializers, urls
+│   └── views.py         # POST /api/plan/
+├── planner/             # Core business logic
+│   ├── scheduler.py     # HOS-compliant scheduling algorithm
+│   ├── routing.py       # Distance/time estimation
+│   ├── models.py        # Trip, DayLog, StatusSegment, etc.
+│   └── log_generator.py # Build daily log data from schedule
+├── requirements.txt
+└── manage.py
+</pre>
+
+<h3>9.4 React Frontend Structure</h3>
+<pre style="font-size:8pt; background:#f4f6f9; padding:8px; border-radius:4px;">
+hos-planner-ui/
+├── src/
+│   ├── components/
+│   │   ├── TripForm.jsx         # Input form
+│   │   ├── MapView.jsx          # Leaflet/MapLibre route map
+│   │   ├── DailyLogGrid.jsx     # 24-hr log sheet grid
+│   │   ├── TripSummary.jsx      # Stats summary card
+│   │   └── StatusBar.jsx        # Color-coded status segments
+│   ├── api.js                   # Axios calls to backend
+│   ├── App.jsx
+│   └── index.jsx
+├── package.json
+└── README.md
+</pre>
+
+<h3>9.5 API Contract (POST /api/plan/)</h3>
+<table>
+  <tr><th colspan="2">Request</th></tr>
+  <tr><td><code>current_location</code></td><td>string (lat,lng or address)</td></tr>
+  <tr><td><code>pickup_location</code></td><td>string</td></tr>
+  <tr><td><code>dropoff_location</code></td><td>string</td></tr>
+  <tr><td><code>cycle_hours_used</code></td><td>float (0.0 – 70.0)</td></tr>
+  <tr><td><code>start_datetime</code></td><td>ISO 8601 (optional)</td></tr>
+  <tr><th colspan="2">Response</th></tr>
+  <tr><td><code>trip_summary</code></td><td>total_distance, total_drive_hrs, total_days, num_breaks, cycle_added, restart_used</td></tr>
+  <tr><td><code>route</code></td><td>coordinates[] + stops[{location, type, time}]</td></tr>
+  <tr><td><code>daily_logs</code></td><td>[{date, grid_entries: [{start, end, status, location}], miles, totals_per_status}]</td></tr>
+</table>
+
+<!-- ===== §10 ===== -->
+<h2 id="s10">§10  Delivery Checklist</h2>
+
+<div class="two-col">
+<div>
+<h4>Backend</h4>
+<ul class="checklist">
+  <li>Django project with DRF</li>
+  <li>Routing/distance estimation</li>
+  <li>HOS schedule planner (11/14/30/70)</li>
+  <li>34-hr restart logic</li>
+  <li>Daily log data generation</li>
+  <li>POST /api/plan/ endpoint</li>
+  <li>Error handling &amp; validation</li>
+  <li>Deployed to cloud host</li>
+  <li>CORS configured for frontend</li>
+</ul>
+</div>
+<div>
+<h4>Frontend</h4>
+<ul class="checklist">
+  <li>React project (Vite or CRA)</li>
+  <li>Trip input form</li>
+  <li>Map with route + stops</li>
+  <li>Daily log grid rendering</li>
+  <li>Trip summary display</li>
+  <li>Responsive / professional UI</li>
+  <li>Deployed to Vercel/Netlify</li>
+</ul>
+<h4 style="margin-top:12px;">Delivery</h4>
+<ul class="checklist">
+  <li>GitHub repo with README</li>
+  <li>Loom video (3–5 min)</li>
+  <li>Live URLs in README</li>
+  <li>README: setup, tech stack, assumptions, supported HOS features vs simplifications</li>
+</ul>
+</div>
+</div>
+
+<hr>
+
+<p style="font-size:8.5pt; color:#888; text-align:center; margin-top:20px;">
+  Generated from FMCSA Interstate Truck Drivers Guide to Hours of Service &amp; assessment requirements.
+</p>
+
+</body>
+</html>
