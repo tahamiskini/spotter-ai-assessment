@@ -1,0 +1,6 @@
+-r requirements.txt
+
+# Test tooling (per django-best-practices: pytest + factory_boy).
+pytest==8.2.2
+pytest-django==4.8.0
+factory_boy==3.3.0
