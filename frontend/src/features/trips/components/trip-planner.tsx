@@ -22,13 +22,19 @@ export const TripPlanner = ({ initialTrip }: TripPlannerProps) => {
   const [trip, setTrip] = useState<Trip | undefined>(initialTrip);
 
   return (
-    <div className="space-y-6">
-      {trip && <TripSummary summary={trip.summary} />}
+    // Fill the viewport below the header on large screens so the two panes can
+    // scroll independently; fall back to natural stacked height on mobile.
+    <div className="flex flex-col gap-4 lg:h-[calc(100dvh-11rem)]">
+      {trip && (
+        <div className="shrink-0">
+          <TripSummary summary={trip.summary} />
+        </div>
+      )}
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Left panel: inputs + per-day stops */}
-        <aside className="space-y-6 lg:col-span-1">
-          <div className="rounded-lg border bg-card p-5">
+      <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[minmax(320px,380px)_1fr]">
+        {/* Left pane: inputs + per-day stops (scrolls independently) */}
+        <aside className="flex min-h-0 flex-col gap-6 lg:overflow-y-auto lg:pr-1">
+          <div className="shrink-0 rounded-lg border bg-card p-5 shadow-xs">
             <TripForm
               onPlanned={setTrip}
               defaultValues={
@@ -43,27 +49,33 @@ export const TripPlanner = ({ initialTrip }: TripPlannerProps) => {
           </div>
 
           {trip && (
-            <div className="rounded-lg border bg-card p-5">
+            <div className="rounded-lg border bg-card p-5 shadow-xs">
               <h2 className="mb-3 text-sm font-semibold">Planned stops</h2>
               <DayStops route={trip.route} />
             </div>
           )}
         </aside>
 
-        {/* Right: map / logs tabs */}
-        <section className="lg:col-span-2">
+        {/* Right pane: map / logs (fills the remaining height) */}
+        <section className="flex min-h-0 flex-col">
           {trip ? (
-            <Tabs defaultValue="route">
-              <TabsList>
+            <Tabs
+              defaultValue="route"
+              className="flex min-h-0 flex-1 flex-col"
+            >
+              <TabsList className="shrink-0 self-start">
                 <TabsTrigger value="route">Route &amp; stops</TabsTrigger>
                 <TabsTrigger value="logs">
                   Daily logs ({trip.daily_logs.length})
                 </TabsTrigger>
               </TabsList>
-              <TabsContent value="route">
+              <TabsContent value="route" className="min-h-0 flex-1">
                 <RouteMap route={trip.route} />
               </TabsContent>
-              <TabsContent value="logs">
+              <TabsContent
+                value="logs"
+                className="min-h-0 flex-1 overflow-y-auto"
+              >
                 <div className="space-y-6">
                   {trip.daily_logs.map((log) => (
                     <LogSheet key={log.date} log={log} />
@@ -72,7 +84,7 @@ export const TripPlanner = ({ initialTrip }: TripPlannerProps) => {
               </TabsContent>
             </Tabs>
           ) : (
-            <div className="flex h-[420px] items-center justify-center rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+            <div className="flex h-full min-h-90 items-center justify-center rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
               Enter trip details and click &ldquo;Plan trip&rdquo; to see the
               route, stops, and daily log sheets.
             </div>

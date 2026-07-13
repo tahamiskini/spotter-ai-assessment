@@ -44,7 +44,7 @@ export const RouteMap = ({ route }: RouteMapProps) => {
   const center = points[Math.floor(points.length / 2)] ?? [39.5, -98.35];
 
   return (
-    <div className="h-[420px] w-full overflow-hidden rounded-lg border">
+    <div className="h-full min-h-90 w-full overflow-hidden rounded-lg border">
       <MapContainer
         center={center}
         zoom={5}

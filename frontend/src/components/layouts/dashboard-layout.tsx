@@ -1,42 +1,23 @@
-import { PanelLeft, User2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate, useNavigation } from "react-router";
+import { useNavigation } from "react-router";
 
 import logo from "@/assets/logo.svg";
-import { Button } from "@/components/ui/button";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { paths } from "@/config/paths";
-import { cn } from "@/utils/cn";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown";
 import { Link } from "../ui/link";
-
-type SideNavigationItem = {
-  name: string;
-  to: string;
-  icon: (props: React.SVGProps<SVGSVGElement>) => JSX.Element;
-};
 
 const Logo = () => {
   return (
-    <Link className="flex items-center text-white" to={paths.home.getHref()}>
-      <img className="h-8 w-auto" src={logo} alt="Workflow" />
-      <span className="text-sm font-semibold text-white">
-        HOS Trip Planner
-      </span>
+    <Link className="flex items-center gap-2 text-white" to={paths.home.getHref()}>
+      <img className="h-8 w-auto" src={logo} alt="" />
+      <span className="text-sm font-semibold text-white">HOS Trip Planner</span>
     </Link>
   );
 };
 
+/** Thin top loading bar driven by router navigation state. */
 const Progress = () => {
   const { state, location } = useNavigation();
-
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -51,14 +32,10 @@ const Progress = () => {
             clearInterval(timer);
             return 100;
           }
-          const newProgress = oldProgress + 10;
-          return newProgress > 100 ? 100 : newProgress;
+          return Math.min(oldProgress + 10, 100);
         });
       }, 300);
-
-      return () => {
-        clearInterval(timer);
-      };
+      return () => clearInterval(timer);
     }
   }, [state]);
 
@@ -68,65 +45,22 @@ const Progress = () => {
 
   return (
     <div
-      className="fixed left-0 top-0 h-1 bg-blue-500 transition-all duration-200 ease-in-out"
+      className="fixed left-0 top-0 z-40 h-1 bg-blue-500 transition-all duration-200 ease-in-out"
       style={{ width: `${progress}%` }}
-    ></div>
+    />
   );
 };
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
-  const navigate = useNavigate();
-
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
-      <aside className="fixed inset-y-0 left-0 z-10 hidden w-60 flex-col border-r bg-black sm:flex">
-        <nav className="flex flex-col items-center gap-4 px-2 py-4">
-          <div className="flex h-16 shrink-0 items-center px-4">
-            <Logo />
-          </div>
-        </nav>
-      </aside>
-      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-60">
-        <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:justify-end sm:border-0 sm:bg-transparent sm:px-6">
-          <Progress />
-          <Drawer>
-            <DrawerTrigger asChild>
-              <Button size="icon" variant="outline" className="sm:hidden">
-                <PanelLeft className="size-5" />
-                <span className="sr-only">Toggle Menu</span>
-              </Button>
-            </DrawerTrigger>
-            <DrawerContent
-              side="left"
-              className="bg-black pt-10 text-white sm:max-w-60"
-            >
-              <nav className="grid gap-6 text-lg font-medium">
-                <div className="flex h-16 shrink-0 items-center px-4">
-                  <Logo />
-                </div>
-              </nav>
-            </DrawerContent>
-          </Drawer>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="overflow-hidden rounded-full"
-              >
-                <span className="sr-only">Open user menu</span>
-                <User2 className="size-6 rounded-full" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuSeparator />
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </header>
-        <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-          {children}
-        </main>
-      </div>
+      <Progress />
+      <header className="sticky top-0 z-30 border-b bg-slate-900">
+        <div className="mx-auto flex h-14 max-w-7xl items-center px-4 sm:px-6 md:px-8">
+          <Logo />
+        </div>
+      </header>
+      <main className="flex-1">{children}</main>
     </div>
   );
 }
