@@ -10,6 +10,7 @@ import {
   useCreateTrip,
 } from '../api/create-trip';
 
+import { DateTimePicker } from './date-time-picker';
 import { LocationCombobox } from './location-combobox';
 
 const LOCATION_FIELDS = [
@@ -73,11 +74,17 @@ export const TripForm = ({ onPlanned, defaultValues }: TripFormProps) => {
             error={formState.errors['current_cycle_used_hours']}
             registration={register('current_cycle_used_hours')}
           />
-          <Input
-            type="datetime-local"
-            label="Start date & time (optional)"
-            error={formState.errors['start_datetime']}
-            registration={register('start_datetime')}
+          <Controller
+            name="start_datetime"
+            control={control}
+            render={({ field }) => (
+              <DateTimePicker
+                label="Start date & time (optional)"
+                value={field.value ?? ''}
+                onChange={field.onChange}
+                error={formState.errors['start_datetime']}
+              />
+            )}
           />
 
           <Button
