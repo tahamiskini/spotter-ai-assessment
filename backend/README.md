@@ -14,7 +14,7 @@ break / 70h cycle rules.
 ## Stack
 
 - **Django 5 + Django REST Framework** — API + persistence
-- **PostgreSQL** in prod / Docker; **SQLite** fallback for zero-config local runs
+- **SQLite** — zero config, no DB server needed (local and production)
 - **OpenRouteService** (`driving-hgv`) for routing + geocoding, with a built-in
   **offline estimator** so the app runs with no API key
 - **Pure-Python engine** (`hos/engine/`) — no Django imports, stdlib only
@@ -152,13 +152,11 @@ window compose correctly.
 
 ## Deployment (Render)
 
-`render.yaml` defines a Docker web service + free Postgres. Set `ORS_API_KEY`
-(optional) and `CORS_ALLOWED_ORIGINS` (your Vercel URL) in the dashboard;
-`DATABASE_URL` and `DJANGO_SECRET_KEY` are wired automatically. Migrations run
-on container start.
+`render.yaml` defines a Docker web service (SQLite — no database server needed).
+Set `ORS_API_KEY` (optional) and `CORS_ALLOWED_ORIGINS` (your Vercel URL) in
+the dashboard; `DJANGO_SECRET_KEY` is auto-generated. Migrations run on start.
 
 ## Environment variables
 
-See `.env.example`. Key ones: `DATABASE_URL` (Postgres; SQLite if unset),
-`ORS_API_KEY` (optional), `CORS_ALLOWED_ORIGINS`, `DJANGO_SECRET_KEY`,
-`DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`.
+See `.env.example`. Key ones: `ORS_API_KEY` (optional), `CORS_ALLOWED_ORIGINS`,
+`DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`.
